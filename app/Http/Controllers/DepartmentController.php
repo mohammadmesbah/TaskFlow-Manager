@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDepartmentRequest;
 use App\Models\Department;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
@@ -12,7 +14,8 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        //
+        $departments = Department::all();
+        return view('departments.index', compact('departments'));
     }
 
     /**
@@ -20,15 +23,19 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        //
+        $managers = User::all();
+        return view('departments.create', compact('managers'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDepartmentRequest $request)
     {
-        //
+        Department::create($request->validated());
+
+        return to_route('departments.index')
+            ->with('success', 'Department created!');
     }
 
     /**
@@ -36,7 +43,7 @@ class DepartmentController extends Controller
      */
     public function show(Department $department)
     {
-        //
+        return view('departments.show', compact('department'));
     }
 
     /**
@@ -44,15 +51,19 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        //
+        $managers = User::all();
+        return view('departments.edit', compact('department', 'managers'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Department $department)
+    public function update(StoreDepartmentRequest $request, Department $department)
     {
-        //
+        $department->update($request->validated());
+
+        return to_route('departments.index')
+            ->with('success', 'Department created!');
     }
 
     /**
@@ -60,6 +71,7 @@ class DepartmentController extends Controller
      */
     public function destroy(Department $department)
     {
-        //
+        $department->delete();
+        return to_route('departments.index')->with('success', 'Department deleted!');
     }
 }

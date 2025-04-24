@@ -29,7 +29,9 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        //
+        $task= Task::create($request->validated());
+        return to_route('tasks.index') ->with('success', "Task '{$task->title}' created!");
+
     }
 
     /**
@@ -53,7 +55,10 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        //
+        $task->update($request->validated());
+
+        return to_route('tasks.index')
+            ->with('success', "Task '{$task->title}' updated!");
     }
 
     /**

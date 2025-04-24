@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class StoreTaskRequest extends FormRequest
+class StoreDepartmentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,20 +23,16 @@ class StoreTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:departments',
             'description' => 'nullable|string',
-            'project_id' => 'required|exists:projects,id',
-            'user_id' => 'required|exists:users,id',
-            'due_date' => 'nullable|date|after_or_equal:today',
-            'status' => 'required|in:pending,in_progress,completed'
+            'manager_id' => 'nullable|exists:users,id'
         ];
     }
 
     public function messages()
     {
         return [
-            'user_id.required' => 'Please assign the task to a team member',
-            'due_date.after_or_equal' => 'Due date cannot be in the past'
+            'manager_id.exists' => 'The selected manager does not exist.'
         ];
     }
 }
