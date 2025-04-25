@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Department;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -13,60 +16,66 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $projects = Project::with(['department', 'users'])->get();
+        return view('projects.index', compact('projects'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $departments = Department::all();
+        $users = User::all();
+        return view('projects.create', compact('departments', 'users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreProjectRequest $request)
     {
         $project = Project::create($request->validated());
+        
+        // Attach users if provided
+        if ($request->has('users')) {
+            $project->users()->attach($request->users);
+        }
 
-        // Auto-assign creator to project
-        //$project->users()->attach(auth()->id());
-
-        return to_route('projects.show', $project)
-            ->with('success', 'Project created!');
+        return redirect()->route('projects.index')
+            ->with('success', 'Project created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Project $project)
     {
-        //
+        $project->load(['department', 'users', 'tasks']);
+        return view('projects.show', compact('project'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Project $project)
     {
-        //
+        $departments = Department::all();
+        $users = User::all();
+        $currentUsers = $project->users->pluck('id')->toArray();
+        
+        return view('projects.edit', compact('project', 'departments', 'users', 'currentUsers'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        //
+        $project->update($request->validated());
+        
+        // Sync users
+        $project->users()->sync($request->users ?? []);
+
+        return redirect()->route('projects.index')
+            ->with('success', 'Project updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Project $project)
     {
-        //
+        $project->delete();
+        return redirect()->route('projects.index')
+            ->with('success', 'Project deleted successfully!');
+    }
+
+    public function tasks(Project $project)
+    {
+        $tasks = $project->tasks()->with('user')->get();
+        return view('projects.tasks', compact('project', 'tasks'));
     }
 }

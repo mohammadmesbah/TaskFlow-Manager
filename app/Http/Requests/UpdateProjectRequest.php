@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateDepartmentRequest extends FormRequest
+class UpdateProjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,28 +22,19 @@ class UpdateDepartmentRequest extends FormRequest
      */
     public function rules(): array
     {
-         // Explicitly get the department ID
-         $departmentId = $this->route('department')->id;
         return [
             'name' => [
-                'sometimes',
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('departments')
-                    ->ignore($this->department) // Model binding
-                   
+                Rule::unique('projects')->ignore($this->project)
             ],
-            'description' => 'sometimes|nullable|string',
-            'manager_id' => 'sometimes|nullable|exists:users,id'
-        ];
-    }
-
-    // Optional: Custom error messages
-    public function messages()
-    {
-        return [
-            'name.unique' => 'This department name already exists.',
+            'description' => 'nullable|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'department_id' => 'required|exists:departments,id',
+            'users' => 'sometimes|array',
+            'users.*' => 'exists:users,id'
         ];
     }
 }

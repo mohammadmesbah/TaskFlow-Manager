@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDepartmentRequest;
+use App\Http\Requests\UpdateDepartmentRequest;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -58,12 +59,13 @@ class DepartmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreDepartmentRequest $request, Department $department)
+    public function update(UpdateDepartmentRequest $request, Department $department)
     {
+        
         $department->update($request->validated());
 
         return to_route('departments.index')
-            ->with('success', 'Department created!');
+            ->with('success', 'Department updated!');
     }
 
     /**
