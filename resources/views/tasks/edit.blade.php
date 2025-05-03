@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Edit Task')
+@section('nav-title', 'Tasks')
+
+@section('nav-links')
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('tasks.index') }}">Tasks</a>
+    </li>
+@endsection
 
 @section('content')
 <div class="container">
