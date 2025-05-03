@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
-use App\Http\Requests\StoreTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
+use App\Models\{Task, Project, User};
+use App\Http\Requests\{StoreTaskRequest, UpdateTaskRequest};
 
 class TaskController extends Controller
 {
@@ -13,7 +12,8 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        $tasks = Task::with(['project', 'user'])->get();
+        return view('tasks.index', compact('tasks'));
     }
 
     /**
@@ -21,7 +21,9 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        $projects = Project::all();
+        $users = User::all();
+        return view('tasks.create', compact('projects', 'users'));
     }
 
     /**
@@ -39,7 +41,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        return view('tasks.show', compact('task'));
     }
 
     /**
@@ -47,7 +49,9 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        //
+        $projects = Project::all();
+        $users = User::all();
+        return view('tasks.edit', compact('task', 'projects', 'users'));
     }
 
     /**
@@ -66,6 +70,8 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        $task->delete();
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task ' . $task->title . ' deleted successfully!');
     }
 }

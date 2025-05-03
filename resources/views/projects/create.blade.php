@@ -61,7 +61,7 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 bg-secondary">
                     <label class="form-label">Team Members</label>
                     <div class="row">
                         @foreach($users as $user)

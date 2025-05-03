@@ -12,3 +12,7 @@ Route::get('/', function () {
 Route::resource('departments', DepartmentController::class);
 Route::resource('projects',ProjectController::class);
 Route::resource('tasks',TaskController::class);
+
+// Optional: Project-specific tasks route
+Route::get('projects/{project}/tasks', [TaskController::class, 'index'])
+    ->name('projects.tasks.index');

@@ -11,11 +11,11 @@
         </a>
     </div>
 
-    @if(session('success'))
+{{--     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
-    @endif
+    @endif --}}
 
     <div class="card">
         <div class="card-body">
