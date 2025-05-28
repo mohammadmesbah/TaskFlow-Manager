@@ -32,10 +32,11 @@ TaskFlow Manager is a modern web application that helps organizations manage the
 
 ## Tech Stack
 
-- **Backend**: Laravel 10.x
+- **Backend**: Laravel 12.x
 - **Frontend**: Blade Templates, Vite
 - **Database**: MySQL
-- **Authentication**: Laravel Breeze
+- **Authentication**: Laravel UI v4.6
+- **Authorization**: Laravel Policy
 
 ## Installation
 
@@ -100,4 +101,3 @@ php artisan serve
 ## License
 
 This project is created by Mohammad Mesbah.
-
