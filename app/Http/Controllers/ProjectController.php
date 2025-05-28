@@ -14,6 +14,10 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function __construct()
+    {
+        $this->authorizeResource(Project::class);
+    }
     public function index()
     {
         $projects = Project::with(['department', 'users'])->get();
@@ -29,6 +33,7 @@ class ProjectController extends Controller
 
     public function store(StoreProjectRequest $request)
     {
+        $this->authorize('create', Project::class);
         $project = Project::create($request->validated());
         
         // Attach users if provided
@@ -57,6 +62,7 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
+        $this->authorize('update', $project);
         $project->update($request->validated());
         
         // Sync users
@@ -68,6 +74,7 @@ class ProjectController extends Controller
 
     public function destroy(Project $project)
     {
+        $this->authorize('delete', $project);
         $project->delete();
         return redirect()->route('projects.index')
             ->with('success', 'Project deleted successfully!');

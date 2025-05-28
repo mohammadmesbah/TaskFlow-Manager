@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Department;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +13,7 @@ class StoreDepartmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', $this->department);
     }
 
     /**

@@ -2,26 +2,26 @@
 
 namespace App\Policies;
 
-use App\Models\Task;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class TaskPolicy
+class DepartmentPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return true; //view all tasks to auth users
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Task $task): bool
+    public function view(User $user, Department $department): bool
     {
-        return true; //view single task to auth users
+        return true;
     }
 
     /**
@@ -29,38 +29,38 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        return $user->is_admin;// Only admins can create
+        return $user->is_admin;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Task $task): bool
+    public function update(User $user, Department $department): bool
     {
-        return $user->is_admin;// Only admins can update
+        return $user->is_admin;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Task $task): bool
+    public function delete(User $user, Department $department): bool
     {
-        return $user->is_admin;// Only admins can delete
+        return $user->is_admin;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Task $task): bool
+    public function restore(User $user, Department $department): bool
     {
-        return $user->is_admin;// Only admins can restore
+        return $user->is_admin;
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Task $task): bool
+    public function forceDelete(User $user, Department $department): bool
     {
-        return $user->is_admin;// Only admins can force delete
+        return $user->is_admin;
     }
 }

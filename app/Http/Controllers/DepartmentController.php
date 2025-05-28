@@ -13,6 +13,10 @@ class DepartmentController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function __construct()
+    {
+        $this->authorizeResource(Department::class);
+    }
     public function index()
     {
         $departments = Department::all();
@@ -33,6 +37,7 @@ class DepartmentController extends Controller
      */
     public function store(StoreDepartmentRequest $request)
     {
+        $this->authorize('create', Department::class);
         Department::create($request->validated());
 
         return to_route('departments.index')
@@ -61,6 +66,7 @@ class DepartmentController extends Controller
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
+        $this->authorize('update', $department);
         
         $department->update($request->validated());
 
@@ -73,6 +79,7 @@ class DepartmentController extends Controller
      */
     public function destroy(Department $department)
     {
+        $this->authorize('delete', $department);
         $department->delete();
         return to_route('departments.index')->with('success', 'Department deleted!');
     }

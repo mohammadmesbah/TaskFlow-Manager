@@ -10,6 +10,10 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function __construct()
+    {
+        $this->authorizeResource(Task::class);
+    }
     public function index()
     {
         $tasks = Task::with(['project', 'user'])->get();
@@ -31,6 +35,7 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
+        $this->authorize('create', Task::class);
         $task= Task::create($request->validated());
         return to_route('tasks.index') ->with('success', "Task '{$task->title}' created!");
 
@@ -59,6 +64,7 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
+        $this->authorize('update', Task::class);
         $task->update($request->validated());
 
         return to_route('tasks.index')
@@ -70,6 +76,7 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        $this->authorize('delete', Task::class);
         $task->delete();
         return redirect()->route('tasks.index')
             ->with('success', 'Task ' . $task->title . ' deleted successfully!');
