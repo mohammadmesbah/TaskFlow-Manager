@@ -24,3 +24,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::post('/notifications/{notification}/read', function ($notificationId) {
+    $notification = Auth::user()->unreadNotifications->findOrFail($notificationId);
+    $notification->markAsRead();
+    return response()->json(['success' => true]);
+})->name('notifications.ajax.read');

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\{Task, Project, User};
 use App\Http\Requests\{StoreTaskRequest, UpdateTaskRequest};
+use App\Notifications\TaskAssignedNotification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -35,8 +38,12 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
+        
         $this->authorize('create', Task::class);
         $task= Task::create($request->validated());
+            if ($task->user) {
+            $task->user->notify(new TaskAssignedNotification($task, $task->project));
+            }
         return to_route('tasks.index') ->with('success', "Task '{$task->title}' created!");
 
     }
@@ -46,6 +53,13 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
+        // Ensure the Notifiable trait is used in the User model to access unreadNotifications
+        if (request()->has('notification')) {
+            $notification = Auth::user()->unreadNotifications->find(request('notification'));
+            if ($notification) {
+            $notification->markAsRead();
+            }
+        }
         return view('tasks.show', compact('task'));
     }
 

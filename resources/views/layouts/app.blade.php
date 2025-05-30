@@ -19,7 +19,7 @@
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm" style="border-bottom: 1px solid #c5c0c0;">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'TaskFlow') }}
@@ -36,39 +36,64 @@
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
+                        <!-- Notifications Dropdown -->
+                        @auth
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdownNotifications" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Notifications
+                                @if(auth()->user()->unreadNotifications->count())
+                                    <span class="badge bg-danger">{{ auth()->user()->unreadNotifications->count() }}</span>
+                                @endif
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                @forelse(auth()->user()->notifications as $notification)
+                                    <a href="{{ route('tasks.show', ['task' => $notification->data['task_id']]) }}"
+                                       class="dropdown-item notification-link {{ is_null($notification->read_at) ? 'fw-bold' : '' }}"
+                                       data-notification-id="{{ $notification->id }}">
+                                        New Task: {{ $notification->data['task_title'] }} in {{ $notification->data['project_name'] }}
+                                        @if(is_null($notification->read_at))
+                                            <span class="badge bg-danger ms-2">New</span>
+                                        @endif
+                                    </a>
+                                @empty
+                                    <span class="dropdown-item text-muted">No notifications</span>
+                                @endforelse
+                            </div>
+                        </li>
+                        @endauth
                         <!-- Authentication Links -->
                         @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
+                        @if (Route::has('login'))
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                        </li>
+                        @endif
 
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
+                        @if (Route::has('register'))
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                        </li>
+                        @endif
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                {{ Auth::user()->name }}
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                    {{ __('Logout') }}
                                 </a>
 
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </div>
+                        </li>
                         @endguest
                     </ul>
+
                 </div>
             </div>
         </nav>
@@ -77,5 +102,38 @@
             @yield('content')
         </main>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.notification-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                var notificationId = this.getAttribute('data-notification-id');
+                if (notificationId && this.classList.contains('fw-bold')) {
+                    fetch('/notifications/' + notificationId + '/read', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            // Update badge count
+                            let badge = document.querySelector('#navbarDropdownNotifications .badge');
+                            if (badge) {
+                                let count = parseInt(badge.textContent);
+                                if (count > 1) badge.textContent = count - 1;
+                                else badge.remove();
+                            }
+                            // Optionally, remove bold style and "New" badge
+                            this.classList.remove('fw-bold');
+                            let newBadge = this.querySelector('.bg-danger');
+                            if (newBadge) newBadge.remove();
+                        }
+                    });
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>

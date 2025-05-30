@@ -89,6 +89,25 @@ php artisan serve
 4. Create projects and assign them to departments
 5. Add tasks to projects and assign them to team members
 6. Track project and task progress
+7. Get Notification if new task assigned to you.
+
+## Notification Feature
+
+TaskFlow Manager includes a robust notification system to keep users informed about important project and task updates:
+
+- **Task Assignment Notifications:**  
+  When a manager creates a new project or assigns a task to a user, the assigned user receives a notification in their account.
+
+- **Notification Dropdown:**  
+  Users can view all notifications (read and unread) from the notifications dropdown in the navigation bar. Unread notifications are highlighted and a badge displays the count of unread notifications.
+
+- **Mark as Read:**  
+  Clicking on a notification automatically marks it as read and updates the unread count in real time.
+
+- **Database-Backed:**  
+  All notifications are stored in the database, ensuring users can access their notification history at any time.
+
+This feature helps users stay up-to-date with their assignments and project changes, improving team communication and workflow efficiency.
 
 ## Contributing
 
