@@ -33,7 +33,7 @@ class UpdateTaskRequest extends FormRequest
             'due_date' => 'required|date',
             'status' => 'required|in:pending,in_progress,completed',
             'project_id' => 'required|exists:projects,id',
-            'user_id' => 'required|exists:users,id'
+            
         ];
     }
 }

@@ -46,7 +46,13 @@
                 </div>
                 <div class="col-md-6">
                     <h5>Assigned To</h5>
-                    <p>{{ $task->user->name }}</p>
+                    @if($task->users->count())
+                        @foreach($task->users as $user)
+                            <span class="badge bg-primary">{{ $user->name }}</span>
+                        @endforeach
+                    @else
+                        <span class="text-muted">No users assigned</span>
+                    @endif
                 </div>
             </div>
 

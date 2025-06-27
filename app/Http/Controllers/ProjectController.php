@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Notifications\ProjectAssignedNotification;
 
 class ProjectController extends Controller
 {
@@ -41,6 +42,10 @@ class ProjectController extends Controller
             $project->users()->attach($request->users);
         }
 
+        foreach ($project->users as $user) {
+            $user->notify(new ProjectAssignedNotification($project));
+        }
+
         return redirect()->route('projects.index')
             ->with('success', 'Project created successfully!');
     }
@@ -62,11 +67,24 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project)
     {
+        // Authorize the user to update the project
         $this->authorize('update', $project);
         $project->update($request->validated());
-        
+
+        // Get current and new user IDs
+        $currentUserIds = $project->users()->pluck('users.id')->toArray();
+        $newUserIds = $request->users ?? [];
+
         // Sync users
-        $project->users()->sync($request->users ?? []);
+        $project->users()->sync($newUserIds);
+
+        // Find newly assigned users, by compairing new user IDs with current user IDs
+        $newlyAssignedUserIds = array_diff($newUserIds, $currentUserIds);
+        $newUsers = User::whereIn('id', $newlyAssignedUserIds)->get();
+
+        foreach ($newUsers as $user) {
+            $user->notify(new ProjectAssignedNotification($project));
+        }
 
         return redirect()->route('projects.index')
             ->with('success', 'Project updated successfully!');
@@ -75,14 +93,18 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $this->authorize('delete', $project);
+        // Notify all users assigned to the project
+        foreach ($project->users as $user) {
+            $user->notify(new ProjectDeleteNotification($project));
+        }
         $project->delete();
         return redirect()->route('projects.index')
             ->with('success', 'Project deleted successfully!');
     }
 
-    public function tasks(Project $project)
+    /* public function tasks(Project $project)
     {
         $tasks = $project->tasks()->with('user')->get();
         return view('projects.tasks', compact('project', 'tasks'));
-    }
+    } */
 }

@@ -26,7 +26,6 @@ class StoreTaskRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'project_id' => 'required|exists:projects,id',
-            'user_id' => 'required|exists:users,id',
             'due_date' => 'nullable|date|after_or_equal:today',
             'status' => 'required|in:pending,in_progress,completed'
         ];
@@ -35,7 +34,7 @@ class StoreTaskRequest extends FormRequest
     public function messages()
     {
         return [
-            'user_id.required' => 'Please assign the task to a team member',
+            
             'due_date.after_or_equal' => 'Due date cannot be in the past'
         ];
     }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('due_date')->nullable();
             $table->foreignId('project_id')->constrained(); // المشروع التابع له
-            $table->foreignId('user_id')->constrained()->comment('Assigned user'); // المسؤول عن المهمة
+           
             $table->enum('status', ['pending', 'in_progress', 'completed']);
             $table->timestamps();
         });

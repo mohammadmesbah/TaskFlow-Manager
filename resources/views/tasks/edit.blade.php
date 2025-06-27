@@ -62,17 +62,18 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label for="user_id" class="form-label">Assigned To *</label>
-                        <select class="form-select @error('user_id') is-invalid @enderror" 
-                                id="user_id" name="user_id" required>
+                        <label for="users" class="form-label">Assigned To *</label>
+                        <select class="form-select @error('users') is-invalid @enderror"
+                                id="users" name="users[]" multiple required>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" 
-                                    {{ old('user_id', $task->user_id) == $user->id ? 'selected' : '' }}>
+                                <option value="{{ $user->id }}"
+                                    {{ (collect(old('users', $task->users->pluck('id')->toArray()))->contains($user->id)) ? 'selected' : '' }}>
                                     {{ $user->name }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('user_id')
+                        <small class="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple users.</small>
+                        @error('users')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

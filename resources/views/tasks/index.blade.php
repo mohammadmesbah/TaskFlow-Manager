@@ -11,6 +11,14 @@
 
 
 @section('content')
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 <div class="container">
     <h1>Tasks</h1>
     <a href="{{ route('tasks.create') }}" class="btn btn-primary mb-3">Create Task</a>
@@ -30,18 +38,19 @@
             @foreach($tasks as $task)
             <tr>
                 <td>{{ $task->title }}</td>
-                <td>{{ $task->project->name }}</td>
-                <td>{{ $task->user->name }}</td>
-                <td>{{ $task->due_date->format('M d, Y') }}</td>
+                <td>{{ $task->project->name ?? 'N/A' }}</td>
                 <td>
-                    <span class="badge bg-{{ 
-                        $task->status == 'completed' ? 'success' : 
-                        ($task->status == 'in_progress' ? 'warning' : 'secondary') 
-                    }}">
-                        {{ ucfirst($task->status) }}
-                    </span>
+                    @if($task->users->isNotEmpty())
+                        @foreach($task->users as $user)
+                            <span class="badge bg-primary">{{ $user->name }}</span>
+                        @endforeach
+                    @else
+                        <span class="text-muted">No users assigned</span>
+                    @endif
                 </td>
+                <td>{{ $task->status }}</td>
                 <td>
+                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-info">View</a>
                     <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning">Edit</a>
                     <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="d-inline">
                         @csrf @method('DELETE')

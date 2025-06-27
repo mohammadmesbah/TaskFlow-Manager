@@ -60,7 +60,8 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class, 'project_user'); // مشاريع متعددة
     }
 
-    public function tasks() {
-        return $this->hasMany(Task::class);
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class);
     }
 }

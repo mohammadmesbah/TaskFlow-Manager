@@ -15,7 +15,7 @@ class Task extends Model
         'due_date',
         'status',
         'project_id',
-        'user_id'
+      
     ];
 
     protected $casts = [
@@ -26,7 +26,9 @@ class Task extends Model
     {
         return $this->belongsTo(Project::class);
     }
-    public function user() {
-        return $this->belongsTo(User::class);
+   
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
 }

@@ -47,14 +47,35 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
                                 @forelse(auth()->user()->notifications as $notification)
-                                    <a href="{{ route('tasks.show', ['task' => $notification->data['task_id']]) }}"
-                                       class="dropdown-item notification-link {{ is_null($notification->read_at) ? 'fw-bold' : '' }}"
-                                       data-notification-id="{{ $notification->id }}">
-                                        New Task: {{ $notification->data['task_title'] }} in {{ $notification->data['project_name'] }}
-                                        @if(is_null($notification->read_at))
-                                            <span class="badge bg-danger ms-2">New</span>
-                                        @endif
-                                    </a>
+                                    @php
+                                        $data = $notification->data;
+                                    @endphp
+
+                                    {{-- Task Assigned Notification --}}
+                                    @if(isset($data['task_id']) && isset($data['task_title']))
+                                        <a href="{{ route('tasks.show', ['task' => $data['task_id'], 'notification' => $notification->id]) }}"
+                                           class="dropdown-item notification-link {{ is_null($notification->read_at) ? 'fw-bold bg-light-gray' : '' }}"
+                                           data-notification-id="{{ $notification->id }}">
+                                            <i class="fas fa-tasks me-1"></i>
+                                            New Task: {{ $data['task_title'] }} in {{ $data['project_name'] ?? 'Project' }}
+                                            @if(is_null($notification->read_at))
+                                                <span class="badge bg-danger ms-2">New</span>
+                                            @endif
+                                        </a>
+                                        <hr>
+                                    {{-- Project Assigned Notification --}}
+                                    @elseif(isset($data['project_id']) && isset($data['project_name']))
+                                        <a href="{{ route('projects.show', ['project' => $data['project_id'], 'notification' => $notification->id]) }}"
+                                           class="dropdown-item notification-link {{ is_null($notification->read_at) ? 'fw-bold bg-light-gray' : '' }}"
+                                           data-notification-id="{{ $notification->id }}">
+                                            <i class="fas fa-folder-plus me-1"></i>
+                                            New Project Assigned: {{ $data['project_name'] }}
+                                            @if(is_null($notification->read_at))
+                                                <span class="badge bg-danger ms-2">New</span>
+                                            @endif
+                                        </a>
+                                        <hr>
+                                    @endif
                                 @empty
                                     <span class="dropdown-item text-muted">No notifications</span>
                                 @endforelse

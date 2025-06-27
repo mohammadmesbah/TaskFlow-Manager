@@ -21,7 +21,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return true; //view single task to auth users
+        // Allow if user is admin or assigned to the task
+        return $user->is_admin || $task->users->contains($user->id);
     }
 
     /**
@@ -38,7 +39,7 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->is_admin;// Only admins can update
+        return $user->is_admin;
     }
 
     /**
@@ -46,7 +47,7 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->is_admin;// Only admins can delete
+        return $user->is_admin ;
     }
 
     /**

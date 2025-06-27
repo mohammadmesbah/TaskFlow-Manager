@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\{Task, Project, User};
 use App\Http\Requests\{StoreTaskRequest, UpdateTaskRequest};
-use App\Notifications\TaskAssignedNotification;
+use App\Notifications\{TaskAssignedNotification, TaskDeletedNotification};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -19,7 +19,7 @@ class TaskController extends Controller
     }
     public function index()
     {
-        $tasks = Task::with(['project', 'user'])->get();
+        $tasks = Task::with(['project', 'users'])->get();
         return view('tasks.index', compact('tasks'));
     }
 
@@ -41,9 +41,15 @@ class TaskController extends Controller
         
         $this->authorize('create', Task::class);
         $task= Task::create($request->validated());
-            if ($task->user) {
-            $task->user->notify(new TaskAssignedNotification($task, $task->project));
-            }
+        // Attach users if provided
+        if ($request->has('users')) {
+            $task->users()->attach($request->users);
+        }
+
+        foreach ($task->users as $user) {
+            $user->notify(new TaskAssignedNotification($task, $task->project));
+        }
+            
         return to_route('tasks.index') ->with('success', "Task '{$task->title}' created!");
 
     }
@@ -78,8 +84,28 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        $this->authorize('update', Task::class);
+        //dd($request->users, $task->users()->pluck('users.id')->toArray());
+        $this->authorize('update', $task);
+        
+        // Get old user IDs before update
+        $oldUserIds = $task->users()->pluck('users.id')->toArray();
+
+        // Update the task
         $task->update($request->validated());
+
+        // Get new user IDs after update
+        $newUserIds = $request->users ?? [];
+
+        // Sync users
+        $task->users()->sync($newUserIds);
+
+        // Find newly assigned users
+        $newlyAssignedUserIds = array_diff($newUserIds, $oldUserIds);
+        $newUsers = User::whereIn('id', $newlyAssignedUserIds)->get();
+
+        foreach ($newUsers as $user) {
+            $user->notify(new TaskAssignedNotification($task, $task->project));
+        }
 
         return to_route('tasks.index')
             ->with('success', "Task '{$task->title}' updated!");
@@ -90,7 +116,13 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        $this->authorize('delete', Task::class);
+        $this->authorize('delete', $task);
+        $assignedUsers = $task->users; // Collection of User models
+
+        foreach ($assignedUsers as $user) {
+            $user->notify(new TaskDeletedNotification($task, $task->project));
+        }
+
         $task->delete();
         return redirect()->route('tasks.index')
             ->with('success', 'Task ' . $task->title . ' deleted successfully!');
